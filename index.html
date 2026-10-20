@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pentru Olivia 💗</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* Layout: un singur card centrat pe fundal roz; insigna cu emoji pe marginea de sus,
+     sageata de inapoi sus-stanga, perechea Nu / Da sub intrebare. Look unic (roz), fara mod intunecat. */
+  :root {
+    color-scheme: light;
+    --pink: #f0518f;
+    --pink-light: #ff7eb3;
+    --pink-dark: #d81b60;
+    --pink-soft: #fde4ec;
+    --pink-pale: #fff3f7;
+    --pink-line: #f4a4c0;
+    --text: #6d2a45;
+    --title: #7a2b4a;
+    --label: #c0668c;
+    --white: #ffffff;
+    --bg: linear-gradient(135deg, #ffe9f1 0%, #ffd6e6 50%, #ffe3ee 100%);
+    --card: linear-gradient(180deg, rgba(255, 255, 255, .95), rgba(255, 246, 250, .9));
+    --font-body: "Quicksand", "Nunito", "Segoe UI", system-ui, sans-serif;
+    --font-script: "Pacifico", "Segoe Script", "Brush Script MT", cursive;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  body, h1, p { margin: 0; }
+  [hidden] { display: none !important; }
+  html, body { height: 100%; }
+  body {
+    display: flex;
+    padding-block: 20px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--text);
+    overflow-x: hidden;
+  }
+
+  /* ---------- fundal ---------- */
+  #bg { position: fixed; inset: 0; overflow: hidden; z-index: 0; pointer-events: none; }
+  .blob { position: absolute; border-radius: 50%; filter: blur(70px); opacity: .65; animation: drift 14s ease-in-out infinite alternate; }
+  .b1 { width: 46vmax; height: 46vmax; background: #ffb3cf; top: -14vmax; left: -12vmax; }
+  .b2 { width: 40vmax; height: 40vmax; background: #ffc9dc; bottom: -14vmax; right: -10vmax; animation-delay: -5s; }
+  .b3 { width: 28vmax; height: 28vmax; background: #ff9fc2; top: 40%; left: 55%; opacity: .35; animation-delay: -9s; }
+  @keyframes drift { to { transform: translate(40px, 30px) scale(1.08); } }
+
+  #hearts { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+  .float-heart { position: absolute; bottom: -40px; opacity: .3; animation: rise linear forwards; }
+  @keyframes rise {
+    50% { transform: translate(var(--dx, 20px), -58vh) rotate(-14deg); }
+    100% { transform: translate(calc(var(--dx, 20px) * -1), -118vh) rotate(18deg); opacity: 0; }
+  }
+
+  /* ---------- card ---------- */
+  /* fara transform / backdrop-filter pe card, ca sa nu afecteze position:fixed */
+  .wrap { position: relative; z-index: 1; width: min(100%, 460px); min-width: 0; margin: auto; padding-top: 34px; }
+  .card {
+    position: relative;
+    width: 100%;
+    padding: 54px 30px 40px;
+    background: var(--card);
+    border: 1px solid rgba(240, 81, 143, .14);
+    border-radius: 34px;
+    box-shadow: 0 30px 80px -20px rgba(216, 27, 96, .28), 0 8px 24px rgba(240, 81, 143, .12);
+    text-align: center;
+  }
+  .card::before { content: "♥"; position: absolute; right: 24px; top: 20px; color: #ffc2d8; font-size: 1.1rem; }
+  .card::after { content: "♥"; position: absolute; left: 24px; bottom: 18px; color: #ffc2d8; font-size: 1.4rem; }
+
+  .badge {
+    position: absolute;
+    top: -34px;
+    left: 50%;
+    margin-left: -37px;
+    width: 74px;
+    height: 74px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-size: 2.1rem;
+    background: var(--white);
+    box-shadow: 0 10px 26px rgba(240, 81, 143, .28), 0 0 0 6px var(--pink-soft);
+    animation: pop .45s ease backwards;
+  }
+  @keyframes pop { 0% { transform: scale(.6); opacity: 0; } 70% { transform: scale(1.12); } 100% { transform: scale(1); opacity: 1; } }
+
+  /* sageata de inapoi */
+  .back {
+    position: absolute;
+    left: 14px;
+    top: 14px;
+    z-index: 2;
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 2px solid var(--pink-line);
+    border-radius: 50%;
+    background: var(--white);
+    color: var(--pink-dark);
+    cursor: pointer;
+    box-shadow: 0 6px 16px rgba(240, 81, 143, .2);
+    transition: transform .15s ease, background .2s ease;
+  }
+  .back svg { width: 20px; height: 20px; }
+  .back:hover { background: var(--pink-pale); transform: translateX(-2px); }
+  .back:active { transform: scale(.94); }
+  .back:focus-visible { outline: 3px solid #ffb3cf; outline-offset: 3px; }
+
+  .meta { margin-bottom: 6px; }
+  #label { font-size: .8rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--label); }
+  .bar { height: 8px; width: 70%; margin: 10px auto 0; border-radius: 99px; background: var(--pink-soft); overflow: hidden; }
+  .fill { height: 100%; width: 0; border-radius: 99px; background: linear-gradient(90deg, var(--pink-light), var(--pink)); transition: width .5s ease; }
+
+  #stage {
+    min-height: 230px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    transition: opacity .25s ease;
+  }
+  #stage.out { opacity: 0; }
+  #stage > * { animation: rise-in .5s ease backwards; }
+  @keyframes rise-in { from { opacity: 0; transform: translateY(10px); } }
+
+  h1 { font-size: clamp(1.45rem, 5.2vw, 1.85rem); font-weight: 700; line-height: 1.3; color: var(--title); margin: 22px 0 28px; text-wrap: balance; }
+  h1.big { font-family: var(--font-script); font-weight: 400; font-size: clamp(1.8rem, 7vw, 2.4rem); color: var(--pink-dark); line-height: 1.35; }
+  .sub { margin-top: -10px; font-size: 1.05rem; line-height: 1.6; opacity: .9; }
+
+  /* ---------- butoane ---------- */
+  .row { display: flex; gap: 16px; justify-content: center; align-items: center; }
+  #noSlot { display: inline-block; }
+  .btn {
+    font: inherit;
+    font-weight: 700;
+    font-size: 1.05rem;
+    min-width: 112px;
+    padding: 13px 36px;
+    border: 3px solid transparent;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--pink-light), var(--pink));
+    color: var(--white);
+    cursor: pointer;
+    white-space: nowrap;
+    box-shadow: 0 10px 22px rgba(240, 81, 143, .35);
+    transition: transform .15s ease, box-shadow .2s ease, background .2s ease, filter .2s ease;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 14px 28px rgba(240, 81, 143, .42); filter: brightness(1.04); }
+  .btn:active { transform: translateY(0) scale(.97); }
+  .btn:focus-visible { outline: 3px solid #ffb3cf; outline-offset: 3px; }
+
+  /* "Nu": chenar gros, fundal alb si contur dublu, ca sa se vada clar */
+  .btn.outline {
+    background: var(--white);
+    color: var(--pink-dark);
+    border-color: var(--pink-dark);
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, .85), 0 8px 20px rgba(216, 27, 96, .25);
+  }
+  .btn.outline:hover { background: var(--pink-pale); filter: none; box-shadow: 0 0 0 4px rgba(255, 255, 255, .85), 0 12px 24px rgba(216, 27, 96, .3); }
+  #no.fled {
+    position: fixed;
+    z-index: 10;
+    transition: left .22s ease-out, top .22s ease-out, background .2s ease;
+  }
+  #no.fled:hover, #no.fled:active { transform: none; }
+
+  /* raspunsul ales, pastrat cand te intorci la o intrebare */
+  .btn.chosen::before { content: "✓"; margin-right: 8px; }
+  .btn.chosen { box-shadow: 0 0 0 4px rgba(240, 81, 143, .3), 0 10px 22px rgba(240, 81, 143, .35); }
+  .btn.outline.chosen { background: var(--pink-soft); box-shadow: 0 0 0 4px rgba(216, 27, 96, .22), 0 8px 20px rgba(216, 27, 96, .25); }
+
+  .btn.nudge { animation: nudge .5s ease; }
+  @keyframes nudge { 0%, 100% { transform: scale(1); } 40% { transform: scale(1.14); } }
+
+  /* mesajul de la "Nu" */
+  .oops {
+    min-height: 3.6em;
+    margin: 22px auto 0;
+    padding: 12px 16px;
+    max-width: 360px;
+    background: var(--pink-pale);
+    border: 1.5px dashed var(--pink-line);
+    border-radius: 18px;
+    color: var(--pink-dark);
+    font-weight: 600;
+    font-size: .98rem;
+    line-height: 1.45;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    visibility: hidden;
+  }
+  .oops.show { visibility: visible; animation: shake .45s ease; }
+  .oops.show.quiet { animation: none; }
+  @keyframes shake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-7px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(3px); } }
+
+  @media (max-width: 400px) {
+    .card { padding: 54px 20px 34px; }
+    .row { gap: 12px; }
+    .btn { padding: 12px 26px; min-width: 96px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .blob, .float-heart { display: none; }
+    * { animation-duration: .01s !important; }
+  }
+</style>
+</head>
+<body>
+
+<div id="bg" aria-hidden="true"><i class="blob b1"></i><i class="blob b2"></i><i class="blob b3"></i></div>
+<div id="hearts" aria-hidden="true"></div>
+
+<div class="wrap">
+  <main class="card">
+    <button class="back" id="back" type="button" aria-label="Înapoi la întrebarea precedentă" hidden>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="badge" id="badge" aria-hidden="true">💗</div>
+    <div class="meta">
+      <div id="label"></div>
+      <div class="bar"><div class="fill" id="fill"></div></div>
+    </div>
+    <section id="stage"></section>
+  </main>
+</div>
+
+<script>
+(() => {
+  "use strict";
+
+  // Schimbă numele, întrebările și mesajele aici
+  const NAME = "Olivia";
+  const QUESTIONS = [
+    { emoji: "😊", q: "Ai zâmbit azi?", no: [
+      "Răspuns greșit! 🙈 Mai gândește-te, sigur ai zâmbit măcar o dată.",
+      "Hmm, nu cred... Gândește-te la mine și o să zâmbești chiar acum 😊",
+      "Încă nu e răspunsul corect. Mai încearcă o dată 💗"
+    ] },
+    { emoji: "🥰", q: "Știi că ești persoana mea preferată?", no: [
+      "Greșit! 😤 Ești persoana mea preferată, mai gândește-te.",
+      "Nu e răspunsul corect. Nu mă gândesc la nimeni altcineva 💞",
+      "Hai, știi tu ce trebuie să răspunzi 😉"
+    ] },
+    { emoji: "💞", q: "Îți place cum ne înțelegem noi doi?", no: [
+      "Hmm, asta nu e adevărat... mai gândește-te 🤔",
+      "Răspuns greșit! Noi doi ne înțelegem de minune ✨",
+      "Nu-nu-nu, încearcă din nou 😌"
+    ] },
+    { emoji: "🤝", q: "Crezi că formăm o echipă bună?", no: [
+      "Eroare! 🚨 Suntem cea mai bună echipă, mai gândește-te.",
+      "Răspunsul ăsta nu se pune. Gândește-te mai bine 💭",
+      "Aproape că am crezut că vorbești serios 😅 Încearcă iar."
+    ] },
+    { emoji: "🌸", q: "Ești fericită când suntem împreună?", no: [
+      "Greșit! 🌸 Mai gândește-te la ultima dată când am râs împreună.",
+      "Nu cred că asta e ce simți cu adevărat 💕",
+      "Încă un răspuns greșit. Am răbdare, mai încearcă 😊"
+    ] }
+  ];
+  const FINAL = { emoji: "💍", q: NAME + ", vrei să fii soția mea?" };
+
+  const $ = (s) => document.querySelector(s);
+  const stage = $("#stage");
+  const badge = $("#badge");
+  const heartsEl = $("#hearts");
+  const backBtn = $("#back");
+
+  let step = 0;
+  let busy = false;
+  let done = false;
+  const state = []; // state[i] = { choice: "yes" | "no" | null, noCount }
+  let yesBtn = null, noBtn = null, noSlot = null, fleeing = false;
+
+  /* ---------- inimioare plutitoare ---------- */
+  const HEART_COLORS = ["#f0518f", "#ff7eb3", "#ffa3c4", "#e91e63", "#ffb8d0"];
+  const calm = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+
+  function spawnHeart(big, warm) {
+    if (calm) return;
+    const h = document.createElement("span");
+    const dur = 6 + Math.random() * 6;
+    h.className = "float-heart";
+    h.textContent = "♥";
+    h.style.left = Math.random() * 100 + "vw";
+    h.style.fontSize = (big ? 22 : 12) + Math.random() * (big ? 30 : 22) + "px";
+    h.style.color = HEART_COLORS[Math.floor(Math.random() * HEART_COLORS.length)];
+    h.style.setProperty("--dx", Math.random() * 80 - 40 + "px");
+    h.style.animationDuration = dur + "s";
+    if (big) h.style.opacity = ".65";
+    if (warm) h.style.animationDelay = -Math.random() * dur + "s";
+    heartsEl.appendChild(h);
+    setTimeout(() => h.remove(), dur * 1000 + 100);
+  }
+  for (let i = 0; i < 12; i++) spawnHeart(false, true);
+  setInterval(() => spawnHeart(false, false), 700);
+
+  /* ---------- ecrane ---------- */
+  function setBadge(emoji) {
+    badge.textContent = emoji;
+    badge.style.animation = "none";
+    void badge.offsetWidth;
+    badge.style.animation = "";
+  }
+
+  function renderMeta() {
+    const n = QUESTIONS.length;
+    $("#label").textContent = step < n ? "Întrebarea " + (step + 1) + " din " + n : "Întrebarea finală";
+    $("#fill").style.width = Math.round(((step + 1) / (n + 1)) * 100) + "%";
+  }
+
+  function setChosen(yes, no, choice) {
+    yes.classList.toggle("chosen", choice === "yes");
+    no.classList.toggle("chosen", choice === "no");
+    yes.setAttribute("aria-pressed", String(choice === "yes"));
+    no.setAttribute("aria-pressed", String(choice === "no"));
+  }
+
+  function cleanupFlee() {
+    if (noBtn) noBtn.remove();
+    noBtn = null;
+    noSlot = null;
+    yesBtn = null;
+    fleeing = false;
+  }
+
+  function render() {
+    cleanupFlee();
+    renderMeta();
+    backBtn.hidden = done || step === 0;
+
+    if (step < QUESTIONS.length) {
+      const item = QUESTIONS[step];
+      const saved = state[step] || { choice: null, noCount: 0 };
+      setBadge(item.emoji);
+      stage.innerHTML =
+        '<h1>' + item.q + '</h1>' +
+        '<div class="row">' +
+          '<button class="btn outline" id="noQ" type="button">Nu</button>' +
+          '<button class="btn" id="yesQ" type="button">Da</button>' +
+        '</div>' +
+        '<p class="oops" id="oops" role="status" aria-live="polite"></p>';
+
+      const yes = $("#yesQ"), no = $("#noQ"), oops = $("#oops");
+      setChosen(yes, no, saved.choice);
+      if (saved.choice === "no") {
+        // te-ai intors la o intrebare la care ai apasat Nu: mesajul ramane afisat
+        oops.textContent = item.no[(saved.noCount - 1) % item.no.length];
+        oops.classList.add("show", "quiet");
+      }
+
+      yes.addEventListener("click", () => {
+        const s = state[step] || { choice: null, noCount: 0 };
+        state[step] = { choice: "yes", noCount: s.noCount };
+        setChosen(yes, no, "yes");
+        go(step + 1);
+      });
+
+      no.addEventListener("click", () => {
+        const s = state[step] || { choice: null, noCount: 0 };
+        oops.textContent = item.no[s.noCount % item.no.length];
+        state[step] = { choice: "no", noCount: s.noCount + 1 };
+        oops.classList.remove("show", "quiet");
+        void oops.offsetWidth;
+        oops.classList.add("show");
+        setChosen(yes, no, "no");
+        yes.classList.remove("nudge");
+        void yes.offsetWidth;
+        yes.classList.add("nudge");
+      });
+
+      yes.focus({ preventScroll: true });
+    } else {
+      setBadge(FINAL.emoji);
+      stage.innerHTML =
+        '<h1 class="big">' + FINAL.q + '</h1>' +
+        '<div class="row">' +
+          '<span id="noSlot"><button class="btn outline" id="no" type="button" tabindex="-1">Nu</button></span>' +
+          '<button class="btn" id="yes" type="button">Da</button>' +
+        '</div>';
+      setupFinal();
+    }
+  }
+
+  function go(n) {
+    if (busy || n < 0) return;
+    busy = true;
+    cleanupFlee();
+    stage.classList.add("out");
+    setTimeout(() => {
+      step = n;
+      render();
+      stage.classList.remove("out");
+      busy = false;
+    }, 250);
+  }
+
+  backBtn.addEventListener("click", () => {
+    if (!done && step > 0) go(step - 1);
+  });
+
+  /* ---------- butonul "Nu" care fuge (ultima pagină) ---------- */
+  const probe = document.createElement("div");
+  probe.setAttribute("aria-hidden", "true");
+  probe.style.cssText =
+    "position:fixed;left:0;top:0;visibility:hidden;pointer-events:none;" +
+    "padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)";
+  document.body.appendChild(probe);
+
+  function insets() {
+    const cs = getComputedStyle(probe);
+    return {
+      t: parseFloat(cs.paddingTop) || 0,
+      r: parseFloat(cs.paddingRight) || 0,
+      b: parseFloat(cs.paddingBottom) || 0,
+      l: parseFloat(cs.paddingLeft) || 0
+    };
+  }
+
+  function pointOf(e) {
+    const t = (e.touches && e.touches[0]) || e;
+    return [t.clientX, t.clientY];
+  }
+
+  function setupFinal() {
+    yesBtn = $("#yes");
+    noBtn = $("#no");
+    noSlot = $("#noSlot");
+    fleeing = false;
+    yesBtn.addEventListener("click", celebrate);
+
+    const run = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const p = pointOf(e);
+      flee(p[0], p[1]);
+    };
+    ["pointerenter", "pointerdown", "mouseover", "mousedown", "touchstart", "click", "focus"]
+      .forEach((ev) => noBtn.addEventListener(ev, run, { passive: false }));
+  }
+
+  function flee(px, py) {
+    if (!noBtn || !yesBtn) return;
+    const m = 12;
+    const ins = insets();
+
+    if (!fleeing) {
+      // prima fugă: scoatem butonul din card, ca să fie poziționat față de ecran
+      const r = noBtn.getBoundingClientRect();
+      noSlot.style.width = r.width + "px";
+      noSlot.style.height = r.height + "px";
+      noBtn.style.left = r.left + "px";
+      noBtn.style.top = r.top + "px";
+      document.body.appendChild(noBtn);
+      noBtn.classList.add("fled");
+      void noBtn.offsetWidth; // reflow, ca animația să pornească de aici
+      fleeing = true;
+    }
+
+    const w = noBtn.offsetWidth, h = noBtn.offsetHeight;
+    const vw = document.documentElement.clientWidth;
+    const vh = document.documentElement.clientHeight;
+    const minX = m + ins.l, minY = m + ins.t;
+    const maxX = Math.max(minX, vw - w - m - ins.r);
+    const maxY = Math.max(minY, vh - h - m - ins.b);
+
+    if (!Number.isFinite(px) || !Number.isFinite(py)) {
+      const c = noBtn.getBoundingClientRect();
+      px = c.left + w / 2;
+      py = c.top + h / 2;
+    }
+
+    const yes = yesBtn.getBoundingClientRect();
+    const minDist = Math.min(260, Math.min(vw, vh) / 2);
+    let best = null, bestD = -1;
+
+    for (let i = 0; i < 60; i++) {
+      const x = minX + Math.random() * (maxX - minX);
+      const y = minY + Math.random() * (maxY - minY);
+      const overlapsYes =
+        x < yes.right + 30 && x + w > yes.left - 30 &&
+        y < yes.bottom + 30 && y + h > yes.top - 30;
+      if (overlapsYes) continue;
+      const d = Math.hypot(x + w / 2 - px, y + h / 2 - py);
+      if (d > bestD) { best = [x, y]; bestD = d; }
+      if (d >= minDist) break;
+    }
+
+    if (!best) {
+      const corners = [[minX, minY], [maxX, minY], [minX, maxY], [maxX, maxY]];
+      corners.sort((a, b) =>
+        Math.hypot(b[0] + w / 2 - px, b[1] + h / 2 - py) -
+        Math.hypot(a[0] + w / 2 - px, a[1] + h / 2 - py));
+      best = corners[0];
+    }
+
+    noBtn.style.left = best[0] + "px";
+    noBtn.style.top = best[1] + "px";
+  }
+
+  // fuge înainte să ajungi la el: reacționează când cursorul se apropie
+  document.addEventListener("pointermove", (e) => {
+    if (!noBtn || !noBtn.isConnected) return;
+    const r = noBtn.getBoundingClientRect();
+    const dx = Math.max(r.left - e.clientX, 0, e.clientX - r.right);
+    const dy = Math.max(r.top - e.clientY, 0, e.clientY - r.bottom);
+    if (Math.hypot(dx, dy) < 70) flee(e.clientX, e.clientY);
+  });
+
+  // dacă se schimbă dimensiunea ferestrei, butonul rămâne pe ecran
+  window.addEventListener("resize", () => {
+    if (!noBtn || !fleeing) return;
+    const ins = insets();
+    const r = noBtn.getBoundingClientRect();
+    const vw = document.documentElement.clientWidth;
+    const vh = document.documentElement.clientHeight;
+    const minX = 12 + ins.l, minY = 12 + ins.t;
+    noBtn.style.left = Math.min(Math.max(minX, r.left), Math.max(minX, vw - r.width - 12 - ins.r)) + "px";
+    noBtn.style.top = Math.min(Math.max(minY, r.top), Math.max(minY, vh - r.height - 12 - ins.b)) + "px";
+  });
+
+  /* ---------- final fericit ---------- */
+  function celebrate() {
+    if (busy) return;
+    busy = true;
+    done = true;
+    cleanupFlee();
+    backBtn.hidden = true;
+    stage.classList.add("out");
+    setTimeout(() => {
+      setBadge("🥰");
+      $("#label").textContent = "Cel mai frumos răspuns";
+      $("#fill").style.width = "100%";
+      stage.innerHTML =
+        '<h1 class="big">Ai spus DA, ' + NAME + '!</h1>' +
+        '<p class="sub">Mă faci cel mai fericit om din lume.<br>Te iubesc 💗</p>';
+      stage.classList.remove("out");
+      for (let i = 0; i < 45; i++) setTimeout(() => spawnHeart(true, false), i * 60);
+      busy = false;
+    }, 250);
+  }
+
+  render();
+})();
+</script>
+
+</body>
+</html>
