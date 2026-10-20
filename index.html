@@ -276,11 +276,10 @@
     .row { gap: 12px; }
     .btn { padding: 12px 26px; min-width: 96px; }
   }
-  @media (prefers-reduced-motion: reduce) {
-    #fx { display: none; }
-    .sky, .orb, .card { transition: none; }
-    * { animation-duration: .01s !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; }
-  }
+  /* "Nu" se cutremura o clipa inainte sa sara din loc (pe telefon) */
+  #no.scared { animation: scared .17s ease-in-out; }
+  @keyframes scared { 0%, 100% { transform: translateX(0) rotate(0); } 25% { transform: translateX(-3px) rotate(-4deg); } 75% { transform: translateX(3px) rotate(4deg); } }
+  /* animatiile ruleaza mereu: nu mai exista blocul prefers-reduced-motion, care ascundea fundalul pe telefoanele cu "Reduce Motion" */
 </style>
 </head>
 <body>
@@ -373,7 +372,9 @@
   const orb = $("#orb");
   const fx = $("#fx");
   const ctx = fx.getContext ? fx.getContext("2d") : null;
-  const calm = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  // animatiile ruleaza mereu, chiar daca telefonul are "Reduce Motion" pornit (altfel dispar fundalul si particulele)
+  const calm = false;
+  const OS_REDUCE = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
 
   let step = 0;
   let busy = false;
@@ -1070,6 +1071,59 @@
       stage.classList.remove("out");
       busy = false;
     }, 250);
+  }
+
+  /* ---------- telefon: butonul "Nu" se muta singur ---------- */
+  // Pe ecran tactil nu exista "hover": degetul nu poate fi simtit inainte sa atinga ecranul.
+  // De aceea, pe telefon "Nu" sare singur din loc in loc (nu mai e niciodata unde ajungi),
+  // iar daca degetul aterizeaza aproape de el, fuge pe loc.
+  const TOUCHY = !!(window.matchMedia && window.matchMedia("(hover: none), (pointer: coarse)").matches);
+  let roamTimer = 0;
+
+  function stopRoam() { clearTimeout(roamTimer); roamTimer = 0; }
+
+  function startRoam() {
+    stopRoam();
+    const tick = () => {
+      if (!noBtn || !noBtn.isConnected) { roamTimer = 0; return; }
+      if (!document.hidden) {
+        const b = noBtn;
+        b.classList.add("scared");
+        setTimeout(() => {
+          b.classList.remove("scared");
+          if (noBtn === b) flee(NaN, NaN);
+        }, 170);
+      }
+      roamTimer = setTimeout(tick, 800 + Math.random() * 600);
+    };
+    roamTimer = setTimeout(tick, 1500);
+  }
+
+  const setupFinalBase = setupFinal;
+  setupFinal = function () { setupFinalBase(); if (TOUCHY) startRoam(); };
+
+  // degetul aterizeaza aproape de "Nu" (chiar langa el): fuge pe loc
+  document.addEventListener("pointerdown", (e) => {
+    if (!noBtn || !noBtn.isConnected) return;
+    const r = noBtn.getBoundingClientRect();
+    const dx = Math.max(r.left - e.clientX, 0, e.clientX - r.right);
+    const dy = Math.max(r.top - e.clientY, 0, e.clientY - r.bottom);
+    if (Math.hypot(dx, dy) < 90) flee(e.clientX, e.clientY);
+  }, { passive: true });
+
+  /* ---------- diagnostic: deschide pagina cu ?debug la sfarsitul adresei ---------- */
+  const VERSION = "2026-10-20-c";
+  if (/[?&]debug\b/.test(location.search)) {
+    const d = document.createElement("div");
+    d.style.cssText = "position:fixed;left:8px;bottom:8px;z-index:99;padding:6px 9px;border-radius:8px;background:rgba(0,0,0,.72);color:#fff;font:11px/1.45 monospace;pointer-events:none;white-space:pre";
+    document.body.appendChild(d);
+    const show = () => {
+      d.textContent = "v " + VERSION + "\nReduce Motion (OS): " + OS_REDUCE + "\ncanvas: " + !!ctx +
+        "\n@property: " + !!(window.CSS && CSS.registerProperty) + "\nparticule: " + P.length + "\nscena: " + sceneIdx +
+        "\ntactil: " + TOUCHY;
+    };
+    show();
+    setInterval(show, 500);
   }
 
   render();
