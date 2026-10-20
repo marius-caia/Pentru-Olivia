@@ -9,8 +9,16 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
-  /* Layout: un singur card centrat pe fundal roz; insigna cu emoji pe marginea de sus,
-     sageata de inapoi sus-stanga, perechea Nu / Da sub intrebare. Look unic (roz), fara mod intunecat. */
+  /* Layout: un card de papetarie (cusătură punctată) centrat peste o zi care trece de la dimineață la noapte.
+     Fundalul are 3 straturi: cer (gradient), soare/lună (orb) și particule pe canvas, toate schimbate la fiecare întrebare.
+     Look unic (roz, cald), fără mod întunecat; cardul rămâne luminos și pe scena de noapte. */
+  @property --c1 { syntax: "<color>"; inherits: false; initial-value: #fff3ea; }
+  @property --c2 { syntax: "<color>"; inherits: false; initial-value: #ffe1ea; }
+  @property --c3 { syntax: "<color>"; inherits: false; initial-value: #ffc8dc; }
+  @property --o1 { syntax: "<color>"; inherits: false; initial-value: #fffbe6; }
+  @property --o2 { syntax: "<color>"; inherits: false; initial-value: rgba(255, 211, 160, .6); }
+  @property --glow { syntax: "<color>"; inherits: false; initial-value: rgba(255, 150, 120, .38); }
+
   :root {
     color-scheme: light;
     --pink: #f0518f;
@@ -20,11 +28,11 @@
     --pink-pale: #fff3f7;
     --pink-line: #f4a4c0;
     --text: #6d2a45;
-    --title: #7a2b4a;
-    --label: #c0668c;
+    --title: #6e2a4d;
+    --label: #b8628a;
     --white: #ffffff;
-    --bg: linear-gradient(135deg, #ffe9f1 0%, #ffd6e6 50%, #ffe3ee 100%);
-    --card: linear-gradient(180deg, rgba(255, 255, 255, .95), rgba(255, 246, 250, .9));
+    --bg: linear-gradient(180deg, #fff3ea 0%, #ffe1ea 55%, #ffc8dc 100%);
+    --card: linear-gradient(180deg, rgba(255, 255, 255, .96), rgba(255, 243, 249, .93));
     --font-body: "Quicksand", "Nunito", "Segoe UI", system-ui, sans-serif;
     --font-script: "Pacifico", "Segoe Script", "Brush Script MT", cursive;
   }
@@ -43,36 +51,46 @@
     overflow-x: hidden;
   }
 
-  /* ---------- fundal ---------- */
-  #bg { position: fixed; inset: 0; overflow: hidden; z-index: 0; pointer-events: none; }
-  .blob { position: absolute; border-radius: 50%; filter: blur(70px); opacity: .65; animation: drift 14s ease-in-out infinite alternate; }
-  .b1 { width: 46vmax; height: 46vmax; background: #ffb3cf; top: -14vmax; left: -12vmax; }
-  .b2 { width: 40vmax; height: 40vmax; background: #ffc9dc; bottom: -14vmax; right: -10vmax; animation-delay: -5s; }
-  .b3 { width: 28vmax; height: 28vmax; background: #ff9fc2; top: 40%; left: 55%; opacity: .35; animation-delay: -9s; }
-  @keyframes drift { to { transform: translate(40px, 30px) scale(1.08); } }
-
-  #hearts { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
-  .float-heart { position: absolute; bottom: -40px; opacity: .3; animation: rise linear forwards; }
-  @keyframes rise {
-    50% { transform: translate(var(--dx, 20px), -58vh) rotate(-14deg); }
-    100% { transform: translate(calc(var(--dx, 20px) * -1), -118vh) rotate(18deg); opacity: 0; }
+  /* ---------- fundal dinamic ---------- */
+  .sky {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: linear-gradient(180deg, var(--c1) 0%, var(--c2) 55%, var(--c3) 100%);
+    transition: --c1 1.8s ease, --c2 1.8s ease, --c3 1.8s ease;
   }
+  .orb {
+    position: fixed;
+    z-index: 0;
+    left: 16%;
+    top: 15%;
+    width: 280px;
+    height: 280px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    pointer-events: none;
+    background: radial-gradient(circle closest-side, var(--o1) 0%, var(--o1) 28%, var(--o2) 46%, transparent 100%);
+    transition: left 2.2s ease, top 2.2s ease, width 2.2s ease, height 2.2s ease, --o1 2s ease, --o2 2s ease;
+  }
+  #fx { position: fixed; inset: 0; z-index: 0; width: 100%; height: 100%; pointer-events: none; }
 
   /* ---------- card ---------- */
-  /* fara transform / backdrop-filter pe card, ca sa nu afecteze position:fixed */
   .wrap { position: relative; z-index: 1; width: min(100%, 460px); min-width: 0; margin: auto; padding-top: 34px; }
   .card {
     position: relative;
     width: 100%;
     padding: 54px 30px 40px;
     background: var(--card);
-    border: 1px solid rgba(240, 81, 143, .14);
-    border-radius: 34px;
-    box-shadow: 0 30px 80px -20px rgba(216, 27, 96, .28), 0 8px 24px rgba(240, 81, 143, .12);
+    border: 1px solid rgba(240, 81, 143, .16);
+    border-radius: 36px;
+    box-shadow: 0 34px 80px -28px var(--glow), 0 10px 30px rgba(120, 40, 90, .12);
     text-align: center;
+    transition: --glow 1.8s ease;
   }
-  .card::before { content: "♥"; position: absolute; right: 24px; top: 20px; color: #ffc2d8; font-size: 1.1rem; }
-  .card::after { content: "♥"; position: absolute; left: 24px; bottom: 18px; color: #ffc2d8; font-size: 1.4rem; }
+  .stitch { position: absolute; inset: 9px; border: 1.5px dashed rgba(240, 81, 143, .3); border-radius: 28px; pointer-events: none; }
+  .card::before { content: "♥"; position: absolute; right: 26px; top: 20px; color: #ffc2d8; font-size: 1.1rem; }
+  .card::after { content: "♥"; position: absolute; left: 26px; bottom: 20px; color: #ffc2d8; font-size: 1.4rem; }
 
   .badge {
     position: absolute;
@@ -86,7 +104,7 @@
     place-items: center;
     font-size: 2.1rem;
     background: var(--white);
-    box-shadow: 0 10px 26px rgba(240, 81, 143, .28), 0 0 0 6px var(--pink-soft);
+    box-shadow: 0 10px 26px rgba(240, 81, 143, .28), 0 0 0 6px var(--pink-soft), 0 0 0 7px rgba(240, 81, 143, .18);
     animation: pop .45s ease backwards;
   }
   @keyframes pop { 0% { transform: scale(.6); opacity: 0; } 70% { transform: scale(1.12); } 100% { transform: scale(1); opacity: 1; } }
@@ -94,8 +112,8 @@
   /* sageata de inapoi */
   .back {
     position: absolute;
-    left: 14px;
-    top: 14px;
+    left: 18px;
+    top: 18px;
     z-index: 2;
     width: 44px;
     height: 44px;
@@ -117,8 +135,11 @@
 
   .meta { margin-bottom: 6px; }
   #label { font-size: .8rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--label); }
-  .bar { height: 8px; width: 70%; margin: 10px auto 0; border-radius: 99px; background: var(--pink-soft); overflow: hidden; }
-  .fill { height: 100%; width: 0; border-radius: 99px; background: linear-gradient(90deg, var(--pink-light), var(--pink)); transition: width .5s ease; }
+  .hearts-row { display: flex; gap: 7px; justify-content: center; margin-top: 10px; }
+  .hdot { width: 18px; height: 18px; fill: var(--pink-soft); stroke: var(--pink-line); stroke-width: 1.4; stroke-linejoin: round; transition: fill .4s ease, stroke .4s ease; }
+  .hdot.on { fill: var(--pink); stroke: var(--pink); }
+  .hdot.now { animation: beat 1.8s ease-in-out infinite; }
+  @keyframes beat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.22); } }
 
   #stage {
     min-height: 230px;
@@ -150,10 +171,10 @@
     color: var(--white);
     cursor: pointer;
     white-space: nowrap;
-    box-shadow: 0 10px 22px rgba(240, 81, 143, .35);
+    box-shadow: 0 10px 22px rgba(240, 81, 143, .35), inset 0 2px 0 rgba(255, 255, 255, .35);
     transition: transform .15s ease, box-shadow .2s ease, background .2s ease, filter .2s ease;
   }
-  .btn:hover { transform: translateY(-2px); box-shadow: 0 14px 28px rgba(240, 81, 143, .42); filter: brightness(1.04); }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 14px 28px rgba(240, 81, 143, .42), inset 0 2px 0 rgba(255, 255, 255, .35); filter: brightness(1.04); }
   .btn:active { transform: translateY(0) scale(.97); }
   .btn:focus-visible { outline: 3px solid #ffb3cf; outline-offset: 3px; }
 
@@ -202,31 +223,82 @@
   .oops.show.quiet { animation: none; }
   @keyframes shake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-7px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(3px); } }
 
+  /* ---------- final: mire + mireasa + semnatura ---------- */
+  #stage .wedding { width: min(100%, 290px); margin: -12px auto 2px; overflow: hidden; }
+  .wedding svg { display: block; width: 100%; height: auto; }
+
+  .arch { stroke-dasharray: 1 2; animation: draw 1.3s ease .2s backwards; }
+  @keyframes draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+
+  .fl { transform-box: fill-box; transform-origin: 50% 50%; animation: fl-pop .45s cubic-bezier(.3, 1.5, .5, 1) backwards; }
+  @keyframes fl-pop { from { transform: scale(0); opacity: 0; } }
+
+  .walk-l { animation: walk-l 1.7s cubic-bezier(.3, .7, .3, 1) .5s backwards; }
+  .walk-r { animation: walk-r 1.7s cubic-bezier(.3, .7, .3, 1) .5s backwards; }
+  @keyframes walk-l { from { transform: translateX(-130px); opacity: 0; } 20% { opacity: 1; } }
+  @keyframes walk-r { from { transform: translateX(130px); opacity: 0; } 20% { opacity: 1; } }
+
+  .bob { animation: bob .34s ease-in-out .5s 5; }
+  .bob.b2 { animation-delay: .67s; }
+  @keyframes bob { 50% { transform: translateY(-5px); } }
+
+  .head { transform-box: fill-box; transform-origin: 50% 100%; }
+  .lean-l { animation: lean-l .7s ease 2.2s both; }
+  .lean-r { animation: lean-r .7s ease 2.2s both; }
+  @keyframes lean-l { to { transform: rotate(6deg); } }
+  @keyframes lean-r { to { transform: rotate(-6deg); } }
+
+  .veil { transform-box: fill-box; transform-origin: 50% 0%; animation: veil 2.4s ease-in-out 2.2s infinite alternate; }
+  @keyframes veil { from { transform: skewX(-2deg); } to { transform: skewX(3deg); } }
+  .bouquet { transform-box: fill-box; transform-origin: 50% 100%; animation: swing 1.8s ease-in-out 2.2s infinite alternate; }
+  @keyframes swing { from { transform: rotate(-5deg); } to { transform: rotate(5deg); } }
+
+  .w-heart { transform-box: fill-box; transform-origin: 50% 60%; animation: heart-pop .8s cubic-bezier(.3, 1.6, .5, 1) 2.1s backwards, w-beat 1.6s ease-in-out 2.9s infinite; }
+  @keyframes heart-pop { from { transform: scale(0) translateY(14px); opacity: 0; } }
+  @keyframes w-beat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.12); } }
+
+  .up { transform-box: fill-box; transform-origin: 50% 50%; opacity: 0; animation: float-up 2.4s ease-out infinite; }
+  .u1 { animation-delay: 2.6s; }
+  .u2 { animation-delay: 3.3s; }
+  .u3 { animation-delay: 4s; }
+  @keyframes float-up { 0% { opacity: 0; transform: translateY(8px) scale(.5); } 20% { opacity: .9; } 100% { opacity: 0; transform: translateY(-34px) scale(1); } }
+
+  #stage .wedding + .sub { margin-top: 8px; animation: rise-in .6s ease 2.8s backwards; }
+  #stage .sign { margin-top: 12px; animation: rise-in .5s ease 3.4s backwards; }
+  .sign small { display: block; color: var(--label); font-size: .85rem; letter-spacing: .02em; }
+  .sign b { display: inline-block; font-family: var(--font-script); font-weight: 400; font-size: 1.9rem; line-height: 1.5; color: var(--pink-dark); animation: write 1.5s cubic-bezier(.5, 0, .4, 1) 3.6s backwards; }
+  @keyframes write { from { clip-path: inset(-10% 100% -10% 0); } to { clip-path: inset(-10% 0 -10% 0); } }
+  .sign svg { display: block; width: 110px; height: auto; margin: -2px auto 0; }
+  .sign path { stroke-dasharray: 1 2; animation: draw .8s ease 4.8s backwards; }
+
   @media (max-width: 400px) {
     .card { padding: 54px 20px 34px; }
     .row { gap: 12px; }
     .btn { padding: 12px 26px; min-width: 96px; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .blob, .float-heart { display: none; }
-    * { animation-duration: .01s !important; }
+    #fx { display: none; }
+    .sky, .orb, .card { transition: none; }
+    * { animation-duration: .01s !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; }
   }
 </style>
 </head>
 <body>
 
-<div id="bg" aria-hidden="true"><i class="blob b1"></i><i class="blob b2"></i><i class="blob b3"></i></div>
-<div id="hearts" aria-hidden="true"></div>
+<div class="sky" id="sky" aria-hidden="true"></div>
+<div class="orb" id="orb" aria-hidden="true"></div>
+<canvas id="fx" aria-hidden="true"></canvas>
 
 <div class="wrap">
-  <main class="card">
+  <main class="card" id="card">
+    <div class="stitch" aria-hidden="true"></div>
     <button class="back" id="back" type="button" aria-label="Înapoi la întrebarea precedentă" hidden>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </button>
     <div class="badge" id="badge" aria-hidden="true">💗</div>
     <div class="meta">
       <div id="label"></div>
-      <div class="bar"><div class="fill" id="fill"></div></div>
+      <div class="hearts-row" id="progress" aria-hidden="true"></div>
     </div>
     <section id="stage"></section>
   </main>
@@ -240,12 +312,12 @@
   const NAME = "Olivia";
   const QUESTIONS = [
     { emoji: "😊", q: "Ai zâmbit azi?", no: [
-      "Răspuns greșit! 🙈 Mai gândește-te, sigur ai zâmbit măcar o dată.",
+      "Răspuns greșit! 🙈 Sunt sigur că ai zâmbit măcar o dată.",
       "Hmm, nu cred... Gândește-te la mine și o să zâmbești chiar acum 😊",
       "Încă nu e răspunsul corect. Mai încearcă o dată 💗"
     ] },
     { emoji: "🥰", q: "Știi că ești persoana mea preferată?", no: [
-      "Greșit! 😤 Ești persoana mea preferată, mai gândește-te.",
+      "Greșit! 😤 Ești persoana mea preferată, schimbă răspunsul.",
       "Nu e răspunsul corect. Nu mă gândesc la nimeni altcineva 💞",
       "Hai, știi tu ce trebuie să răspunzi 😉"
     ] },
@@ -255,8 +327,8 @@
       "Nu-nu-nu, încearcă din nou 😌"
     ] },
     { emoji: "🤝", q: "Crezi că formăm o echipă bună?", no: [
-      "Eroare! 🚨 Suntem cea mai bună echipă, mai gândește-te.",
-      "Răspunsul ăsta nu se pune. Gândește-te mai bine 💭",
+      "Eroare! 🚨 Suntem cea mai bună echipă, corectează răspunsul.",
+      "Răspunsul ăsta nu se pune. Hai, alege altfel 💭",
       "Aproape că am crezut că vorbești serios 😅 Încearcă iar."
     ] },
     { emoji: "🌸", q: "Ești fericită când suntem împreună?", no: [
@@ -267,11 +339,41 @@
   ];
   const FINAL = { emoji: "💍", q: NAME + ", vrei să fii soția mea?" };
 
+  // O scenă pentru fiecare etapă: dimineață, primăvară, baloane, apus, amurg, noapte, sărbătoare
+  const SCENES = [
+    { sky: ["#fff3ea", "#ffe1ea", "#ffc8dc"], glow: "rgba(255,150,120,.38)",
+      orb: { x: .16, y: .15, s: 280, a: "#fffbe6", b: "rgba(255,211,160,.6)" },
+      pal: ["255,255,255", "255,236,176", "255,209,227"], fx: { cloud: 4, sparkle: 18 } },
+    { sky: ["#ffeef4", "#ffd7e6", "#ffbdd6"], glow: "rgba(240,81,143,.34)",
+      orb: { x: .5, y: .06, s: 240, a: "#fff8f0", b: "rgba(255,210,225,.55)" },
+      pal: ["255,209,224", "255,184,208", "255,240,245", "255,194,216"], fx: { petal: 24, sparkle: 8 } },
+    { sky: ["#ffe7f3", "#f5d5f6", "#d9c8fb"], glow: "rgba(190,120,240,.34)",
+      orb: { x: .84, y: .12, s: 240, a: "#fff7ff", b: "rgba(235,200,255,.55)" },
+      pal: ["255,255,255", "255,184,214", "232,196,255"], fx: { bubble: 14, heart: 8, sparkle: 8 } },
+    { sky: ["#ffdccb", "#ffb4c6", "#ff91b5"], glow: "rgba(255,120,120,.4)",
+      orb: { x: .84, y: .9, s: 360, a: "#fff0c9", b: "rgba(255,170,130,.6)" },
+      pal: ["255,222,168", "255,186,196", "255,240,190"], fx: { bokeh: 14, firefly: 10 } },
+    { sky: ["#f6b0d3", "#c79cdd", "#8d78d2"], glow: "rgba(170,110,230,.42)",
+      orb: { x: .16, y: .92, s: 300, a: "#ffe3f3", b: "rgba(255,170,215,.45)" },
+      pal: ["255,255,255", "255,226,244", "214,224,255"], fx: { star: 34, sparkle: 6, bokeh: 6 } },
+    { sky: ["#2a1a4d", "#6a3a88", "#d4699f"], glow: "rgba(255,150,210,.5)",
+      orb: { x: .82, y: .12, s: 210, a: "#fffafd", b: "rgba(255,206,232,.45)" },
+      pal: ["255,255,255", "255,233,246", "207,224,255"], fx: { star: 62, firefly: 14, heart: 8 }, shoot: true },
+    { sky: ["#34205c", "#8a4590", "#ff86b2"], glow: "rgba(255,170,215,.6)",
+      orb: { x: .5, y: .1, s: 260, a: "#fffafd", b: "rgba(255,196,228,.55)" },
+      pal: ["255,255,255", "255,158,200", "255,226,244", "255,210,120"], fx: { star: 50, heart: 14, petal: 16, sparkle: 18 }, shoot: true }
+  ];
+
   const $ = (s) => document.querySelector(s);
   const stage = $("#stage");
   const badge = $("#badge");
-  const heartsEl = $("#hearts");
   const backBtn = $("#back");
+  const card = $("#card");
+  const sky = $("#sky");
+  const orb = $("#orb");
+  const fx = $("#fx");
+  const ctx = fx.getContext ? fx.getContext("2d") : null;
+  const calm = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
 
   let step = 0;
   let busy = false;
@@ -279,28 +381,300 @@
   const state = []; // state[i] = { choice: "yes" | "no" | null, noCount }
   let yesBtn = null, noBtn = null, noSlot = null, fleeing = false;
 
-  /* ---------- inimioare plutitoare ---------- */
-  const HEART_COLORS = ["#f0518f", "#ff7eb3", "#ffa3c4", "#e91e63", "#ffb8d0"];
-  const calm = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  /* ---------- fundal: particule pe canvas ---------- */
+  const TAU = Math.PI * 2;
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  const pick = (arr) => arr[(Math.random() * arr.length) | 0];
+  const P = [];
+  let W = 0, H = 0, dpr = 1, dens = 1;
+  let t = 0, raf = 0, last = 0, shootTimer = 3;
+  let sceneIdx = -1, sceneId = 0, scene = SCENES[0];
 
-  function spawnHeart(big, warm) {
-    if (calm) return;
-    const h = document.createElement("span");
-    const dur = 6 + Math.random() * 6;
-    h.className = "float-heart";
-    h.textContent = "♥";
-    h.style.left = Math.random() * 100 + "vw";
-    h.style.fontSize = (big ? 22 : 12) + Math.random() * (big ? 30 : 22) + "px";
-    h.style.color = HEART_COLORS[Math.floor(Math.random() * HEART_COLORS.length)];
-    h.style.setProperty("--dx", Math.random() * 80 - 40 + "px");
-    h.style.animationDuration = dur + "s";
-    if (big) h.style.opacity = ".65";
-    if (warm) h.style.animationDelay = -Math.random() * dur + "s";
-    heartsEl.appendChild(h);
-    setTimeout(() => h.remove(), dur * 1000 + 100);
+  function fit() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = document.documentElement.clientWidth;
+    H = document.documentElement.clientHeight;
+    dens = Math.max(.55, Math.min(1, (W * H) / (1100 * 760)));
+    if (!ctx) return;
+    fx.width = Math.round(W * dpr);
+    fx.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
-  for (let i = 0; i < 12; i++) spawnHeart(false, true);
-  setInterval(() => spawnHeart(false, false), 700);
+
+  const cache = {};
+  function sprite(key, w, h, fn) {
+    if (!cache[key]) {
+      const c = document.createElement("canvas");
+      c.width = w; c.height = h;
+      fn(c.getContext("2d"), w, h);
+      cache[key] = c;
+    }
+    return cache[key];
+  }
+  const cloudSprite = () => sprite("cloud", 320, 140, (g) => {
+    [[90, 86, 62], [150, 66, 74], [218, 84, 62], [268, 98, 42], [120, 102, 56], [190, 104, 58]].forEach((b) => {
+      const gr = g.createRadialGradient(b[0], b[1], 0, b[0], b[1], b[2]);
+      gr.addColorStop(0, "rgba(255,255,255,.95)");
+      gr.addColorStop(1, "rgba(255,255,255,0)");
+      g.fillStyle = gr;
+      g.fillRect(b[0] - b[2], b[1] - b[2], b[2] * 2, b[2] * 2);
+    });
+  });
+  const bokehSprite = (c) => sprite("b" + c, 96, 96, (g) => {
+    const gr = g.createRadialGradient(48, 48, 0, 48, 48, 48);
+    gr.addColorStop(0, "rgba(" + c + ",.5)");
+    gr.addColorStop(.7, "rgba(" + c + ",.35)");
+    gr.addColorStop(.88, "rgba(" + c + ",.65)");
+    gr.addColorStop(1, "rgba(" + c + ",0)");
+    g.fillStyle = gr;
+    g.fillRect(0, 0, 96, 96);
+  });
+  const glowSprite = (c) => sprite("g" + c, 64, 64, (g) => {
+    const gr = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+    gr.addColorStop(0, "rgba(" + c + ",1)");
+    gr.addColorStop(.25, "rgba(" + c + ",.5)");
+    gr.addColorStop(1, "rgba(" + c + ",0)");
+    g.fillStyle = gr;
+    g.fillRect(0, 0, 64, 64);
+  });
+
+  function heartPath(s) {
+    ctx.beginPath();
+    ctx.moveTo(0, s * .35);
+    ctx.bezierCurveTo(-s * .9, -s * .2, -s * .5, -s * .9, 0, -s * .4);
+    ctx.bezierCurveTo(s * .5, -s * .9, s * .9, -s * .2, 0, s * .35);
+    ctx.closePath();
+  }
+  function petalPath(s) {
+    ctx.beginPath();
+    ctx.moveTo(0, -s);
+    ctx.bezierCurveTo(s * .9, -s * .6, s * .7, s * .6, 0, s);
+    ctx.bezierCurveTo(-s * .7, s * .6, -s * .9, -s * .6, 0, -s);
+    ctx.closePath();
+  }
+
+  const spawn = {
+    cloud(p, init) { p.size = rnd(170, 300); p.x = init ? rnd(0, W) : -p.size * .6; p.y = rnd(H * .05, H * .6); p.vx = rnd(6, 14); p.base = rnd(.4, .7); },
+    sparkle(p, init) { p.size = rnd(3, 8); p.x = rnd(0, W); p.y = rnd(0, H); p.life = rnd(2.6, 5.2); if (init) p.age = rnd(0, p.life); p.vr = rnd(-.6, .6); p.rot = rnd(0, TAU); p.col = pick(scene.pal); p.base = rnd(.7, 1); },
+    petal(p, init) { p.size = rnd(6, 11); p.x = rnd(0, W); p.y = init ? rnd(-20, H) : -20; p.vy = rnd(28, 55); p.vx = rnd(-6, 12); p.vr = rnd(-1.4, 1.4); p.rot = rnd(0, TAU); p.col = pick(scene.pal); p.base = rnd(.65, .95); },
+    bubble(p, init) { p.size = rnd(7, 20); p.x = rnd(0, W); p.y = init ? rnd(0, H) : H + p.size; p.vy = rnd(18, 42); p.base = rnd(.5, .85); p.col = pick(scene.pal); },
+    heart(p, init) { p.size = rnd(7, 15); p.x = rnd(0, W); p.y = init ? rnd(0, H) : H + p.size * 2; p.vy = rnd(16, 34); p.col = pick(scene.pal); p.base = rnd(.45, .8); },
+    bokeh(p, init) { p.size = rnd(16, 52); p.x = rnd(0, W); p.y = rnd(0, H); p.vx = rnd(-5, 5); p.vy = rnd(-5, 5); p.life = rnd(6, 11); if (init) p.age = rnd(0, p.life); p.col = pick(scene.pal); p.base = rnd(.25, .5); },
+    firefly(p) { p.size = rnd(3, 5.5); p.x = rnd(0, W); p.y = rnd(H * .2, H); p.col = "255,238,160"; p.base = 1; p.twinkle = true; p.spd = rnd(10, 22); },
+    star(p) { p.size = rnd(.7, 2.1); p.x = rnd(0, W); p.y = rnd(0, H * .8); p.col = pick(scene.pal); p.base = rnd(.5, 1); p.twinkle = true; },
+    shoot(p) { const a = rnd(2.5, 2.8); p.x = rnd(W * .4, W); p.y = rnd(0, H * .35); p.vx = Math.cos(a) * 640; p.vy = Math.sin(a) * 640; p.life = .9; p.col = "255,255,255"; p.base = 1; },
+    confetti(p) { p.size = rnd(6, 11); p.col = pick(scene.pal); p.base = 1; }
+  };
+
+  function make(kind, init) {
+    const p = { kind: kind, scene: sceneId, x: 0, y: 0, vx: 0, vy: 0, size: 10, rot: 0, vr: 0, ph: rnd(0, TAU), fr: rnd(.8, 1.8),
+      age: 0, life: 0, base: 1, fade: 0, dying: false, dead: false, col: "255,255,255", flip: rnd(0, TAU), ang: rnd(0, TAU),
+      ballistic: false, twinkle: false, g: 0, drag: 0, spd: 0 };
+    spawn[kind](p, init);
+    return p;
+  }
+
+  function want(k) { return Math.max(1, Math.round(scene.fx[k] * dens)); }
+
+  function update(p, dt) {
+    p.age += dt;
+    if (p.dying) { p.fade -= dt * 1.5; if (p.fade <= 0) { p.dead = true; return; } }
+    else if (p.fade < 1) p.fade = Math.min(1, p.fade + dt * .9);
+
+    if (p.ballistic) {
+      p.vy += p.g * dt;
+      p.vx -= p.vx * p.drag * dt;
+      p.x += p.vx * dt; p.y += p.vy * dt;
+      p.rot += p.vr * dt; p.flip += dt * 6;
+      if (p.age > p.life) p.dead = true;
+      return;
+    }
+    switch (p.kind) {
+      case "cloud": p.x += p.vx * dt; if (p.x > W + p.size * .6) p.dead = true; break;
+      case "sparkle": p.rot += p.vr * dt; if (p.age > p.life) p.dead = true; break;
+      case "bokeh": p.x += p.vx * dt; p.y += p.vy * dt; if (p.age > p.life) p.dead = true; break;
+      case "petal":
+        p.y += p.vy * dt; p.x += (p.vx + Math.sin(t * p.fr + p.ph) * 24) * dt;
+        p.rot += p.vr * dt; p.flip += dt * p.fr * 2.2;
+        if (p.y > H + 24) p.dead = true;
+        break;
+      case "bubble": p.y -= p.vy * dt; p.x += Math.sin(t * p.fr + p.ph) * 12 * dt; if (p.y < -p.size * 2) p.dead = true; break;
+      case "heart":
+        p.y -= p.vy * dt; p.x += Math.sin(t * p.fr + p.ph) * 16 * dt; p.rot = Math.sin(t * p.fr + p.ph) * .25;
+        if (p.y < -p.size * 2) p.dead = true;
+        break;
+      case "firefly":
+        p.ang += (Math.random() - .5) * dt * 5;
+        p.x += Math.cos(p.ang) * p.spd * dt; p.y += Math.sin(p.ang) * p.spd * dt;
+        if (p.x < -10) p.x = W + 10; else if (p.x > W + 10) p.x = -10;
+        if (p.y < -10) p.y = H + 10; else if (p.y > H + 10) p.y = -10;
+        break;
+      case "shoot": p.x += p.vx * dt; p.y += p.vy * dt; if (p.age > p.life) p.dead = true; break;
+    }
+  }
+
+  function alphaOf(p) {
+    let a = p.base * p.fade;
+    if (p.ballistic) a *= Math.max(0, 1 - p.age / p.life);
+    else if (p.kind === "shoot") a *= Math.max(0, 1 - p.age / p.life);
+    else if (p.life) a *= Math.sin(Math.PI * Math.min(1, p.age / p.life));
+    if (p.twinkle) a *= .55 + .45 * Math.sin(t * p.fr * 2 + p.ph);
+    return Math.max(0, a);
+  }
+
+  function draw(p) {
+    const a = alphaOf(p);
+    if (a <= .01) return;
+    ctx.globalAlpha = a;
+    const col = "rgb(" + p.col + ")";
+    switch (p.kind) {
+      case "cloud": ctx.drawImage(cloudSprite(), p.x - p.size / 2, p.y - p.size * .22, p.size, p.size * .44); break;
+      case "bokeh": ctx.drawImage(bokehSprite(p.col), p.x - p.size, p.y - p.size, p.size * 2, p.size * 2); break;
+      case "firefly": { const r = p.size * 4; ctx.drawImage(glowSprite(p.col), p.x - r, p.y - r, r * 2, r * 2); break; }
+      case "star":
+        ctx.fillStyle = col;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, TAU); ctx.fill();
+        if (p.size > 1.7) {
+          ctx.globalAlpha = a * .5; ctx.strokeStyle = col; ctx.lineWidth = .7;
+          ctx.beginPath(); ctx.moveTo(p.x - p.size * 3, p.y); ctx.lineTo(p.x + p.size * 3, p.y);
+          ctx.moveTo(p.x, p.y - p.size * 3); ctx.lineTo(p.x, p.y + p.size * 3); ctx.stroke();
+        }
+        break;
+      case "sparkle": {
+        const s = p.size;
+        ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.fillStyle = col;
+        ctx.beginPath();
+        ctx.moveTo(0, -s); ctx.quadraticCurveTo(s * .12, -s * .12, s, 0);
+        ctx.quadraticCurveTo(s * .12, s * .12, 0, s); ctx.quadraticCurveTo(-s * .12, s * .12, -s, 0);
+        ctx.quadraticCurveTo(-s * .12, -s * .12, 0, -s);
+        ctx.fill(); ctx.restore();
+        break;
+      }
+      case "petal":
+        ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+        ctx.scale(.45 + .55 * Math.abs(Math.cos(p.flip)), 1);
+        ctx.fillStyle = col; petalPath(p.size); ctx.fill(); ctx.restore();
+        break;
+      case "bubble":
+        ctx.fillStyle = "rgba(" + p.col + ",.14)"; ctx.strokeStyle = col; ctx.lineWidth = 1.4;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, TAU); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = "rgba(255,255,255,.9)";
+        ctx.beginPath(); ctx.arc(p.x - p.size * .35, p.y - p.size * .35, p.size * .2, 0, TAU); ctx.fill();
+        break;
+      case "heart":
+        ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.fillStyle = col;
+        ctx.globalAlpha = a * .25; heartPath(p.size * 1.7); ctx.fill();
+        ctx.globalAlpha = a; heartPath(p.size); ctx.fill(); ctx.restore();
+        break;
+      case "confetti":
+        ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+        ctx.scale(1, Math.abs(Math.cos(p.flip)) * .9 + .1);
+        ctx.fillStyle = col; ctx.fillRect(-p.size / 2, -p.size * .3, p.size, p.size * .6); ctx.restore();
+        break;
+      case "shoot": {
+        const len = 110, m = Math.hypot(p.vx, p.vy);
+        const tx = p.x - (p.vx / m) * len, ty = p.y - (p.vy / m) * len;
+        const gr = ctx.createLinearGradient(p.x, p.y, tx, ty);
+        gr.addColorStop(0, "rgba(255,255,255,1)"); gr.addColorStop(1, "rgba(255,255,255,0)");
+        ctx.strokeStyle = gr; ctx.lineWidth = 2; ctx.lineCap = "round";
+        ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(tx, ty); ctx.stroke();
+        break;
+      }
+    }
+  }
+
+  function loop(now) {
+    raf = requestAnimationFrame(loop);
+    const dt = Math.min(.05, (now - last) / 1000 || 0);
+    last = now; t += dt;
+    ctx.clearRect(0, 0, W, H);
+
+    // completează particulele care au ieșit din ecran
+    const cnt = {};
+    for (let i = 0; i < P.length; i++) {
+      const q = P[i];
+      if (q.scene === sceneId && !q.dying && !q.ballistic) cnt[q.kind] = (cnt[q.kind] || 0) + 1;
+    }
+    if (P.length < 240) {
+      for (const k in scene.fx) if ((cnt[k] || 0) < want(k)) P.push(make(k, false));
+    }
+    if (scene.shoot) {
+      shootTimer -= dt;
+      if (shootTimer <= 0) { P.push(make("shoot", false)); shootTimer = rnd(4, 9); }
+    }
+
+    for (let i = P.length - 1; i >= 0; i--) {
+      const p = P[i];
+      update(p, dt);
+      if (p.dead) { P.splice(i, 1); continue; }
+      draw(p);
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function start() {
+    if (!raf && ctx && !calm && !document.hidden) { last = performance.now(); raf = requestAnimationFrame(loop); }
+  }
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) { cancelAnimationFrame(raf); raf = 0; } else start();
+  });
+
+  function setScene(i) {
+    if (i === sceneIdx) return;
+    sceneIdx = i; sceneId++; scene = SCENES[i];
+    sky.style.setProperty("--c1", scene.sky[0]);
+    sky.style.setProperty("--c2", scene.sky[1]);
+    sky.style.setProperty("--c3", scene.sky[2]);
+    orb.style.left = scene.orb.x * 100 + "%";
+    orb.style.top = scene.orb.y * 100 + "%";
+    orb.style.width = scene.orb.s + "px";
+    orb.style.height = scene.orb.s + "px";
+    orb.style.setProperty("--o1", scene.orb.a);
+    orb.style.setProperty("--o2", scene.orb.b);
+    card.style.setProperty("--glow", scene.glow);
+    if (!ctx || calm) return;
+    for (let j = 0; j < P.length; j++) P[j].dying = true;
+    for (const k in scene.fx) for (let j = 0, n = want(k); j < n; j++) P.push(make(k, true));
+    shootTimer = rnd(2, 4);
+    start();
+  }
+
+  // explozie de inimioare, petale și confetti din card, la „Da” final
+  function burst() {
+    if (!ctx || calm) return;
+    const r = card.getBoundingClientRect();
+    const cx = r.left + r.width / 2, cy = r.top + r.height * .55;
+    const kinds = ["heart", "heart", "heart", "petal", "sparkle", "confetti"];
+    for (let i = 0; i < 90; i++) {
+      const p = make(pick(kinds), false);
+      const ang = rnd(0, TAU), sp = rnd(180, 640);
+      p.ballistic = true; p.fade = 1; p.base = 1;
+      p.x = cx; p.y = cy;
+      p.vx = Math.cos(ang) * sp; p.vy = Math.sin(ang) * sp - 240;
+      p.g = rnd(260, 420); p.drag = rnd(.5, .9);
+      p.life = rnd(2.4, 4.2); p.vr = rnd(-5, 5);
+      p.col = pick(["255,158,200", "255,255,255", "255,210,120", "255,194,216", "240,81,143"]);
+      if (p.kind === "heart") p.size = rnd(9, 20);
+      if (p.kind === "sparkle") p.size = rnd(5, 11);
+      P.push(p);
+    }
+    start();
+  }
+
+  window.addEventListener("resize", fit);
+  fit();
+
+  /* ---------- progres cu inimioare ---------- */
+  const HEART = '<svg class="hdot" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>';
+  $("#progress").innerHTML = HEART.repeat(QUESTIONS.length + 1);
+  const dots = document.querySelectorAll(".hdot");
+
+  function setHearts(upTo, now) {
+    dots.forEach((d, i) => {
+      d.classList.toggle("on", i <= upTo);
+      d.classList.toggle("now", i === now);
+    });
+  }
 
   /* ---------- ecrane ---------- */
   function setBadge(emoji) {
@@ -313,7 +687,7 @@
   function renderMeta() {
     const n = QUESTIONS.length;
     $("#label").textContent = step < n ? "Întrebarea " + (step + 1) + " din " + n : "Întrebarea finală";
-    $("#fill").style.width = Math.round(((step + 1) / (n + 1)) * 100) + "%";
+    setHearts(step, step);
   }
 
   function setChosen(yes, no, choice) {
@@ -334,6 +708,7 @@
   function render() {
     cleanupFlee();
     renderMeta();
+    setScene(Math.min(step, SCENES.length - 2));
     backBtn.hidden = done || step === 0;
 
     if (step < QUESTIONS.length) {
@@ -425,8 +800,8 @@
   }
 
   function pointOf(e) {
-    const t = (e.touches && e.touches[0]) || e;
-    return [t.clientX, t.clientY];
+    const tt = (e.touches && e.touches[0]) || e;
+    return [tt.clientX, tt.clientY];
   }
 
   function setupFinal() {
@@ -526,6 +901,152 @@
     noBtn.style.top = Math.min(Math.max(minY, r.top), Math.max(minY, vh - r.height - 12 - ins.b)) + "px";
   });
 
+  /* ---------- desen: mire + mireasa ---------- */
+  const SIGN = "Marius";
+  const HEART_D = "M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z";
+
+  function faceSVG(cx, cy, bride) {
+    const ink = "#4a2c2a";
+    const dx = bride ? 7 : 8.4;   // distanta ochilor fata de centrul fetei
+    const ey = cy + 2;
+    let s =
+      `<circle cx="${cx - dx}" cy="${ey}" r="2" fill="${ink}"/>` +
+      `<circle cx="${cx + dx}" cy="${ey}" r="2" fill="${ink}"/>` +
+      `<circle cx="${cx - 12}" cy="${cy + 9}" r="3.8" fill="#ffb3c6" opacity=".65"/>` +
+      `<circle cx="${cx + 12}" cy="${cy + 9}" r="3.8" fill="#ffb3c6" opacity=".65"/>` +
+      `<path d="M${cx - 5},${cy + 9} Q${cx},${cy + 15} ${cx + 5},${cy + 9}" fill="none" stroke="${ink}" stroke-width="1.8" stroke-linecap="round"/>`;
+    if (bride) {
+      s += `<path d="M${cx - 9},${cy + 1} l-2.6,-2 M${cx + 9},${cy + 1} l2.6,-2" fill="none" stroke="${ink}" stroke-width="1.4" stroke-linecap="round"/>`;
+      // ochelari cat-eye, stil Silhouette: fara rama, doar sarme (punte + brate)
+      const wire = "#a9b0bd";
+      const half =
+        `<path d="M-5.2,-2.2 Q-1,-4.4 3.2,-3.6 L6,-5.2 Q6.4,0.8 1.4,3.6 Q-3.8,4.6 -5,1 Z" fill="#ffffff" fill-opacity=".3" stroke="#d5dbe6" stroke-width=".5"/>` +
+        `<path d="M-3.6,-0.4 Q-2.8,-2.6 -0.6,-3" fill="none" stroke="#ffffff" stroke-width=".9" stroke-linecap="round" opacity=".9"/>` +
+        `<path d="M6,-5.2 L11.6,-5.6" fill="none" stroke="${wire}" stroke-width="1" stroke-linecap="round"/>`;
+      s += `<g transform="translate(${cx + dx} ${ey})">${half}</g>` +
+           `<g transform="translate(${cx - dx} ${ey}) scale(-1 1)">${half}</g>` +
+           `<path d="M${cx - 1.8},${ey - 2.2} Q${cx},${ey - 4} ${cx + 1.8},${ey - 2.2}" fill="none" stroke="${wire}" stroke-width="1" stroke-linecap="round"/>`;
+    } else {
+      // ochelari rotunzi cu rama aurie
+      const gold = "#d9a62e", R = 6.8;
+      const lens = (x) =>
+        `<circle cx="${x}" cy="${ey}" r="${R}" fill="#ffffff" fill-opacity=".22" stroke="${gold}" stroke-width="1.5"/>` +
+        `<path d="M${x - 4.2},${ey - 1.6} Q${x - 3.4},${ey - 4.2} ${x - 0.8},${ey - 4.8}" fill="none" stroke="#ffffff" stroke-width="1" stroke-linecap="round" opacity=".9"/>`;
+      s += lens(cx - dx) + lens(cx + dx) +
+           `<path d="M${cx - dx + R},${ey - 0.5} Q${cx},${ey - 2.6} ${cx + dx - R},${ey - 0.5}" fill="none" stroke="${gold}" stroke-width="1.3" stroke-linecap="round"/>` +
+           `<path d="M${cx - dx - R},${ey - 0.8} L${cx - 20.4},${ey - 1.4} M${cx + dx + R},${ey - 0.8} L${cx + 20.4},${ey - 1.4}" fill="none" stroke="${gold}" stroke-width="1.2" stroke-linecap="round"/>`;
+    }
+    return s;
+  }
+
+  function weddingSVG() {
+    const SKIN = "#ffd9c2", SUIT = "#5a3d6b", SUIT_D = "#4a3159";
+    const PETALS = ["#ff9bc2", "#ffffff", "#ffd98a", "#ff7eb3", "#ffc2d8"];
+
+    // floare cu 5 petale
+    function blossom(x, y, color, size) {
+      let s = "";
+      for (let k = 0; k < 5; k++) {
+        const a = (k * 72 - 90) * Math.PI / 180;
+        s += `<circle cx="${(x + Math.cos(a) * 0.68 * size).toFixed(1)}" cy="${(y + Math.sin(a) * 0.68 * size).toFixed(1)}" r="${(0.55 * size).toFixed(1)}" fill="${color}"` +
+          (color === "#ffffff" ? ' stroke="#f4a4c0" stroke-width=".6"' : "") + "/>";
+      }
+      return s + `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(0.38 * size).toFixed(1)}" fill="#ffd166"/>`;
+    }
+
+    // flori pe arc
+    let flowers = "";
+    for (let i = 1; i <= 9; i++) {
+      const th = i / 10 * Math.PI;
+      const x = 138 - 108 * Math.cos(th);
+      const y = 190 - 160 * Math.sin(th);
+      const lx = (x + 7).toFixed(1), ly = (y + 2).toFixed(1), rx = (x - 7).toFixed(1), ry = (y + 3).toFixed(1);
+      flowers +=
+        `<g class="fl" style="animation-delay:${(0.5 + i * 0.14).toFixed(2)}s">` +
+        `<ellipse cx="${lx}" cy="${ly}" rx="6" ry="2.6" fill="#9fdcb8" transform="rotate(20 ${lx} ${ly})"/>` +
+        `<ellipse cx="${rx}" cy="${ry}" rx="6" ry="2.6" fill="#9fdcb8" transform="rotate(-20 ${rx} ${ry})"/>` +
+        blossom(x, y, PETALS[i % PETALS.length], 6.4) +
+        `</g>`;
+    }
+
+    // coronita miresei
+    let crown = "";
+    [215, 240, 270, 300, 325].forEach((deg, k) => {
+      const a = deg * Math.PI / 180;
+      crown += blossom(165 + 24 * Math.cos(a), 82 + 24 * Math.sin(a), PETALS[(k * 2) % PETALS.length], 5.4);
+    });
+
+    const groom =
+      `<g class="walk-l"><g class="bob">` +
+        `<rect x="81" y="154" width="12" height="32" rx="4" fill="${SUIT_D}"/>` +
+        `<rect x="97" y="154" width="12" height="32" rx="4" fill="${SUIT_D}"/>` +
+        `<ellipse cx="86" cy="188" rx="9" ry="4" fill="#2d2033"/>` +
+        `<ellipse cx="104" cy="188" rx="9" ry="4" fill="#2d2033"/>` +
+        `<rect x="66" y="108" width="9" height="42" rx="4.5" fill="${SUIT}"/>` +
+        `<circle cx="70.5" cy="152" r="4.6" fill="${SKIN}"/>` +
+        `<rect x="74" y="104" width="42" height="54" rx="10" fill="${SUIT}"/>` +
+        `<path d="M88,104 L95,124 L102,104 Z" fill="#fff"/>` +
+        `<path d="M88,104 L95,126 L81,118 Z" fill="${SUIT_D}"/>` +
+        `<path d="M102,104 L95,126 L109,118 Z" fill="${SUIT_D}"/>` +
+        `<path d="M95,109 L86,104 L86,114 Z M95,109 L104,104 L104,114 Z" fill="#f0518f"/>` +
+        `<circle cx="95" cy="109" r="2.4" fill="#d81b60"/>` +
+        `<circle cx="106" cy="126" r="3.4" fill="#ff7eb3"/>` +
+        `<circle cx="106" cy="126" r="1.3" fill="#ffd166"/>` +
+        `<path d="M113,112 Q126,124 131,142" fill="none" stroke="${SUIT}" stroke-width="9" stroke-linecap="round"/>` +
+        `<circle cx="131" cy="143" r="4.8" fill="${SKIN}"/>` +
+        `<g class="head lean-l">` +
+          `<circle cx="95" cy="82" r="21" fill="${SKIN}"/>` +
+          `<path d="M74.5,79 C72,62 82,52.5 96,51 C105,50 110,45.5 117,51 C122,55.5 120.5,65 117.5,72 C117,75 116.6,77.5 116,80 C115,72 111,67 103,64.5 C95,62.5 84,65 79,73 C77,76 75.5,78 74.5,79 Z" fill="#8c5f3e"/>` +
+          `<path d="M80,71 C84,62 94,56 106,55 M86,65 C93,59 103,55 113,52 M96,56.5 C104,55 111,52 116,52.5 M104,64.5 C110,60 116,58 119,60" fill="none" stroke="#5e3b22" stroke-width="1.2" stroke-linecap="round" opacity=".6"/>` +
+          `<path d="M88,63 C95,58 104,55 112,53.5" fill="none" stroke="#c9a273" stroke-width="1.4" stroke-linecap="round" opacity=".8"/>` +
+          faceSVG(95, 82, false) +
+        `</g>` +
+      `</g></g>`;
+
+    const bride =
+      `<g class="walk-r"><g class="bob b2">` +
+        `<path class="veil" d="M160,62 Q200,60 206,118 Q208,150 200,178 Q184,150 172,118 Z" fill="#fff" fill-opacity=".85" stroke="#f4a4c0" stroke-width="1.2"/>` +
+        `<ellipse cx="165" cy="98" rx="25" ry="33" fill="#8a5a44"/>` +
+        `<rect x="160" y="96" width="10" height="14" rx="3" fill="${SKIN}"/>` +
+        `<path d="M147,112 Q165,102 183,112 L188,132 L209,187 Q165,198 121,187 L142,132 Z" fill="#fff" stroke="#f4a4c0" stroke-width="1.4" stroke-linejoin="round"/>` +
+        `<path d="M152,138 Q146,160 140,186 M165,138 L165,192 M178,138 Q184,160 190,186" fill="none" stroke="#f9d0e2" stroke-width="1.6" stroke-linecap="round"/>` +
+        `<path d="M143,128 L187,128 L189.5,136 L140.5,136 Z" fill="#ff7eb3"/>` +
+        `<path d="M151,115 Q140,127 133,142" fill="none" stroke="${SKIN}" stroke-width="6.5" stroke-linecap="round"/>` +
+        `<circle cx="133" cy="143" r="4.6" fill="${SKIN}"/>` +
+        `<path d="M180,115 Q191,126 194,140" fill="none" stroke="${SKIN}" stroke-width="6.5" stroke-linecap="round"/>` +
+        `<circle cx="194.5" cy="141" r="4.4" fill="${SKIN}"/>` +
+        `<g class="bouquet">` +
+          `<path d="M190,142 L199,142 L194.5,158 Z" fill="#7fcf9f"/>` +
+          `<circle cx="190" cy="137" r="5.2" fill="#ffd98a"/>` +
+          `<circle cx="199" cy="137" r="5.2" fill="#ffffff" stroke="#f4a4c0" stroke-width=".6"/>` +
+          `<circle cx="194.5" cy="132" r="5.6" fill="#ff7eb3"/>` +
+          `<circle cx="194.5" cy="133" r="1.8" fill="#ffd166"/>` +
+        `</g>` +
+        `<g class="head lean-r">` +
+          `<circle cx="165" cy="82" r="19" fill="${SKIN}"/>` +
+          `<path d="M146,80 C145,62 157,57 167,57 C180,57 187,68 184,80 C179,71 172,66 161,68 C153,69 148,74 146,80 Z" fill="#8a5a44"/>` +
+          crown +
+          faceSVG(165, 82, true) +
+        `</g>` +
+      `</g></g>`;
+
+    const small = (x, y, cls) =>
+      `<g transform="translate(${x},${y}) scale(.7)"><path class="up ${cls}" d="${HEART_D}" fill="#ff7eb3"/></g>`;
+
+    return (
+      `<svg viewBox="20 8 236 196" role="img" aria-label="Un mire și o mireasă sub un arc cu flori">` +
+        `<ellipse cx="138" cy="193" rx="98" ry="6" fill="#d81b60" opacity=".1"/>` +
+        `<path class="arch" pathLength="1" d="M30,190 A108,160 0 0 1 246,190" fill="none" stroke="#ffc2d8" stroke-width="7"/>` +
+        flowers + groom + bride +
+        `<g class="w-heart">` +
+          `<circle cx="138" cy="32" r="20" fill="#fff" stroke="#f4a4c0" stroke-width="1.4"/>` +
+          `<path transform="translate(120.6,14.3) scale(1.45)" d="${HEART_D}" fill="#ff5c9a"/>` +
+        `</g>` +
+        small(92, 46, "u1") + small(172, 44, "u2") + small(206, 74, "u3") +
+      `</svg>`
+    );
+  }
+
   /* ---------- final fericit ---------- */
   function celebrate() {
     if (busy) return;
@@ -533,16 +1054,20 @@
     done = true;
     cleanupFlee();
     backBtn.hidden = true;
+    setScene(SCENES.length - 1);
+    burst();
     stage.classList.add("out");
     setTimeout(() => {
       setBadge("🥰");
       $("#label").textContent = "Cel mai frumos răspuns";
-      $("#fill").style.width = "100%";
+      setHearts(QUESTIONS.length, -1);
       stage.innerHTML =
         '<h1 class="big">Ai spus DA, ' + NAME + '!</h1>' +
-        '<p class="sub">Mă faci cel mai fericit om din lume.<br>Te iubesc 💗</p>';
+        '<div class="wedding">' + weddingSVG() + '</div>' +
+        '<p class="sub">Mă faci cel mai fericit om din lume.<br>Te iubesc 💗</p>' +
+        '<p class="sign"><small>cu toată dragostea,</small><b>' + SIGN + '</b>' +
+        '<svg viewBox="0 0 120 12" aria-hidden="true"><path pathLength="1" d="M4,8 Q24,1 44,7 T84,6 T116,4" fill="none" stroke="#f0518f" stroke-width="2.4" stroke-linecap="round"/></svg></p>';
       stage.classList.remove("out");
-      for (let i = 0; i < 45; i++) setTimeout(() => spawnHeart(true, false), i * 60);
       busy = false;
     }, 250);
   }
